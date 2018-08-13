@@ -31,17 +31,13 @@ int main()
 
     cmd.begin(); // start recording command buffer
 
-    Kernel kn1(dev, prog, "doubleMe", {STORAGE_BUFFER});
-    kn1.bindTo(cmd);
-    Arguments args1(kn1, {buffer});
-    args1.bindTo(cmd);
+    Kernel kn1(dev, prog, "doubleMe", cmd, {STORAGE_BUFFER});
+    Arguments args1(kn1, cmd, {buffer});
     cmd.dispatch(N);
     cmd.barrier();
 
-    Kernel kn2(dev, prog, "tripleMe", {STORAGE_BUFFER});
-    kn2.bindTo(cmd);
-    Arguments args2(kn2, {buffer});
-    args2.bindTo(cmd);
+    Kernel kn2(dev, prog, "tripleMe", cmd, {STORAGE_BUFFER});
+    Arguments args2(kn2, cmd, {buffer});
     cmd.dispatch(N);
     cmd.barrier();
 

@@ -186,6 +186,9 @@ class Program : protected Device {
 
 
 class Kernel : protected Program {
+    private:
+    void sharedConstructor(const char *kernelName, std::vector<ResourceType> resourceTypes);
+
   protected:
 	// The pipeline layout is used by a pipeline to access the descriptor sets
 	// It defines interface (without binding any actual data) between the shader
@@ -207,7 +210,10 @@ class Kernel : protected Program {
     VkPipeline pipeline;
 
   public:
-    Kernel(Device &device, Program &program, const char *kernelName, std::vector<ResourceType> resourceTypes);
+    Kernel(Device &device, Program &program, const char *kernelName,
+           std::vector<ResourceType> resourceTypes);
+    Kernel(Device &device, Program &program, const char *kernelName,
+           VkCommandBuffer commandBuffer, std::vector<ResourceType> resourceTypes);
     void bindTo(VkCommandBuffer commandBuffer);
     void destroy();
 };
@@ -227,8 +233,11 @@ class Arguments : protected Kernel {
     // which are basically just collections of descriptors.
     VkDescriptorSet descriptorSet;
 
+    void sharedConstructor(std::vector<Buffer> resources);
+
   public:
     Arguments(Kernel &kernel, std::vector<Buffer> resources);
+    Arguments(Kernel &kernel, VkCommandBuffer commandBuffer, std::vector<Buffer> resources);
     void bindTo(VkCommandBuffer commandBuffer);
     void destroy();
 };

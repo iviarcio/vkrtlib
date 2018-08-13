@@ -556,8 +556,18 @@ void Program::destroy() {
 }
 
 
-Kernel::Kernel(Device &device, Program &program, const char *kernelName, std::vector<ResourceType> resourceTypes)
-    : Program(program) {
+Kernel::Kernel(Device &device, Program &program, const char *kernelName,
+       std::vector<ResourceType> resourceTypes) : Program(program) {
+    sharedConstructor(kernelName, resourceTypes);
+}
+
+Kernel::Kernel(Device &device, Program &program, const char *kernelName,
+       VkCommandBuffer commandBuffer, std::vector<ResourceType> resourceTypes) : Program(program) {
+    sharedConstructor(kernelName, resourceTypes);
+    bindTo(commandBuffer);
+}
+
+void Kernel::sharedConstructor(const char *kernelName, std::vector<ResourceType> resourceTypes) {
 
     VkDescriptorSetLayoutBinding *bindings = new VkDescriptorSetLayoutBinding[resourceTypes.size()];
     for (uint32_t i = 0; i < resourceTypes.size(); i++) {
@@ -612,7 +622,16 @@ void Kernel::destroy() {
 }
 
 Arguments::Arguments(Kernel &kernel, std::vector<Buffer> resources) : Kernel(kernel) {
-    // how many of each type
+    sharedConstructor(resources);
+}
+
+Arguments::Arguments(Kernel &kernel, VkCommandBuffer commandBuffer, std::vector<Buffer> resources) : Kernel(kernel) {
+    sharedConstructor(resources);
+    bindTo(commandBuffer);
+}
+
+void Arguments::sharedConstructor(std::vector<Buffer> resources) {
+
     VkDescriptorPoolSize descriptorPoolSizes[] = {{VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (uint32_t)resources.size()}};
 
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
